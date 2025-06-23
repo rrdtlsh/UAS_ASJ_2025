@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="header">
+    <a href="{{ url_for('home') }}" class="btn btn-back">🏠 Kembali ke Home</a>
+    <h2>Koleksi Produk Make Over 💅</h2>
+    <a href="{{ url_for('add') }}" class="btn btn-primary">+ Tambah Makeup</a>
+</div>
+
+<div class="card-container">
+    {% for product in products %}
+    <div class="makeup-card">
+        <div class="card-img-container">
+            <img src="{{ product[5] }}" alt="{{ product[1] }}" class="card-img">
+        </div>
+        <div class="card-body">
+            <h3 class="card-title">{{ product[1] }}</h3>
+            <p class="card-description">{{ product[2] }}</p>
+            <div class="card-footer">
+                <span class="card-info">Rilis: {{ product[3] }}</span>
+                <span class="card-price">Rp {{ "{:,.0f}".format(product[4]).replace(",", ".") }}</span>
+            </div>
+            <div class="card-actions">
+                <a href="{{ url_for('edit', id=product[0]) }}" class="btn btn-secondary">Edit</a>
+                <form action="{{ url_for('delete', id=product[0]) }}" method="POST" class="delete-form">
+                    <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?');">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

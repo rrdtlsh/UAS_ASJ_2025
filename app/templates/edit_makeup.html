@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="form-card">
+    <h2>🎨 Edit Data Makeup 🎨</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="nama_produk">Nama Produk</label>
+            <input type="text" name="nama_produk" id="nama_produk" value="{{ product[1] }}" required>
+        </div>
+        <div class="form-group">
+            <label for="deskripsi">Deskripsi</label>
+            <textarea name="deskripsi" id="deskripsi">{{ product[2] }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="tahun_terbit">Tahun Terbit</label>
+            <input type="number" name="tahun_terbit" id="tahun_terbit" value="{{ product[3] }}" required>
+        </div>
+        <div class="form-group">
+            <label for="harga">Harga (Rp)</label>
+            <input type="number" name="harga" id="harga" value="{{ product[4] }}" required>
+        </div>
+        <div class="form-group">
+            <label for="url_gambar">URL Gambar</label>
+            <input type="text" name="url_gambar" id="url_gambar" value="{{ product[5] }}" required>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Perbarui</button>
+            <a href="{{ url_for('makeup_list') }}" class="btn btn-secondary">Kembali</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
