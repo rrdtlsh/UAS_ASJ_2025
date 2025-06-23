@@ -1,5 +1,3 @@
-# UAS_ASJ_NAMA_NIM/docker-compose.yml (Versi Final)
-
 services:
   web:
     build: .
@@ -9,13 +7,10 @@ services:
       - ./app:/app
     env_file:
       - .env
-    # Tambahkan baris ini untuk mengaktifkan debug mode (termasuk live-reload)
     environment:
       - FLASK_DEBUG=1
     depends_on:
       - db
-    # Kita tidak lagi butuh command di sini karena FLASK_DEBUG akan menanganinya
-    # Hapus atau beri komentar pada baris command yang lama
 
   db:
     image: postgres:14-alpine
