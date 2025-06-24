@@ -186,5 +186,31 @@ def delete(id):
     flash('Produk berhasil dihapus.', 'success')
     return redirect(url_for('makeup_list'))
 
+# TAMBAHKAN BLOK KODE DEBUG INI DI app.py
+
+@app.route('/debug-env')
+def debug_env():
+    # Membaca semua variabel lingkungan yang relevan dari Railway
+    db_host = os.getenv("DATABASE_HOST")
+    db_port = os.getenv("POSTGRES_PORT")
+    db_user = os.getenv("POSTGRES_USER")
+    db_name = os.getenv("POSTGRES_DB")
+
+    # Untuk keamanan, kita hanya akan memeriksa apakah password ada, bukan menampilkannya
+    db_pass_exists = "Ada dan terdeteksi" if os.getenv("POSTGRES_PASSWORD") else "TIDAK ADA / KOSONG"
+
+    # Membuat output HTML sederhana untuk ditampilkan di browser
+    return f"""
+        <h1>Debug Environment Variables</h1>
+        <p>Ini adalah nilai variabel yang diterima oleh aplikasi Flask Anda dari Railway:</p>
+        <ul>
+            <li><b>DATABASE_HOST:</b> {db_host}</li>
+            <li><b>POSTGRES_PORT:</b> {db_port}</li>
+            <li><b>POSTGRES_USER:</b> {db_user}</li>
+            <li><b>POSTGRES_DB:</b> {db_name}</li>
+            <li><b>POSTGRES_PASSWORD:</b> {db_pass_exists}</li>
+        </ul>
+    """
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
