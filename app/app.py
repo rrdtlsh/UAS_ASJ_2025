@@ -54,8 +54,9 @@ def setup_database():
     cur.close()
     conn.close()
 
-with app.app_context():
-    setup_database()
+# Inisialisasi database saat aplikasi pertama kali dijalankan
+# with app.app_context():
+# setup_database()
 
 def validate_product(data):
     """Fungsi untuk memvalidasi input data produk."""
