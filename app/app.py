@@ -11,6 +11,7 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'kunci-rahasia-yang-sulit-ditebak'
 
+
 def get_db_connection():
     """Fungsi untuk membuat koneksi ke database."""
     retries = 5
@@ -18,6 +19,7 @@ def get_db_connection():
         try:
             conn = psycopg2.connect(
                 host=os.getenv("DATABASE_HOST"),
+                port=os.getenv("POSTGRES_PORT"),
                 database=os.getenv("POSTGRES_DB"),
                 user=os.getenv("POSTGRES_USER"),
                 password=os.getenv("POSTGRES_PASSWORD")
