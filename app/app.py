@@ -88,6 +88,12 @@ def home():
     """Halaman utama."""
     return render_template('home.html', body_class='home-bg')
 
+@app.route('/secret-db-setup-2025')
+def secret_db_setup():
+    setup_database()
+    flash('Database berhasil diinisialisasi dengan tabel dan data contoh!', 'success')
+    return redirect(url_for('makeup_list'))
+
 @app.route('/makeup')
 def makeup_list():
     """Halaman untuk menampilkan semua data makeup."""
