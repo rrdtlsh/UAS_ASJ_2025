@@ -1,5 +1,3 @@
-# /app/app.py
-
 import os
 import time
 import psycopg2
@@ -11,7 +9,6 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'kunci-rahasia-yang-sulit-ditebak'
 
-
 def get_db_connection():
     """Fungsi untuk membuat koneksi ke database."""
     retries = 5
@@ -19,7 +16,6 @@ def get_db_connection():
         try:
             conn = psycopg2.connect(
                 host=os.getenv("DATABASE_HOST"),
-                port=os.getenv("POSTGRES_PORT"),
                 database=os.getenv("POSTGRES_DB"),
                 user=os.getenv("POSTGRES_USER"),
                 password=os.getenv("POSTGRES_PASSWORD")
@@ -32,12 +28,11 @@ def get_db_connection():
     raise Exception("Tidak dapat terhubung ke database.")
 
 def setup_database():
-    """Membuat tabel 'makeup' jika belum ada."""
+    """Membuat tabel 'makeup' jika belum ada, tanpa data contoh."""
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("""
-        DROP TABLE IF EXISTS makeup;
-        CREATE TABLE makeup (
+        CREATE TABLE IF NOT EXISTS makeup (
             id SERIAL PRIMARY KEY,
             nama_produk VARCHAR(255) NOT NULL,
             deskripsi TEXT,
@@ -46,19 +41,13 @@ def setup_database():
             url_gambar TEXT
         );
     """)
-    cur.execute("""
-        INSERT INTO makeup (nama_produk, deskripsi, tahun_terbit, harga, url_gambar) VALUES
-        ('Powerstay Sync Matte Cushion', 'Cushion dengan medium-to-full coverage yang tahan lama dan memberikan hasil matte.', 2022, 239000, 'https://makeover-ecommerce-bucket.s3.ap-southeast-1.amazonaws.com/images/productthumbnail/08a71440d96f36a855f9f8ca3cdb73f4f21050c7.jpeg'),
-        ('MAKE OVER Powerstay Glazed Lock Lip Pigment', 'Make Over Powerstay Glazed Lock Lip Pigment merupakan level terbaru dari lip gloss, memberikan hasil bibir plump dan glazy yang uncrackable (tampilan tahan lama tanpa cracking) hingga 24 jam.', 2023, 149000, 'https://makeover-ecommerce-bucket.s3.ap-southeast-1.amazonaws.com/images/productthumbnail/bd85d0eed25c64acb99fde36fd08f9279a170299.jpg'),
-        ('Powerstay 24H Weightless Liquid Foundation', 'Foundation cair yang ringan, tahan hingga 24 jam dengan hasil akhir matte.', 2021, 185000, 'https://makeover-ecommerce-bucket.s3.ap-southeast-1.amazonaws.com/images/productthumbnail/069cd736f0391910ab4f02cb4e4dd2c3961bac14.jpg')
-    """)
+
     conn.commit()
     cur.close()
     conn.close()
 
-# Inisialisasi database saat aplikasi pertama kali dijalankan
-# with app.app_context():
-# setup_database()
+with app.app_context():
+    setup_database()
 
 def validate_product(data):
     """Fungsi untuk memvalidasi input data produk."""
@@ -90,11 +79,6 @@ def home():
     """Halaman utama."""
     return render_template('home.html', body_class='home-bg')
 
-@app.route('/secret-db-setup-2025')
-def secret_db_setup():
-    setup_database()
-    flash('Database berhasil diinisialisasi dengan tabel dan data contoh!', 'success')
-    return redirect(url_for('makeup_list'))
 
 @app.route('/makeup')
 def makeup_list():
@@ -134,7 +118,7 @@ def add():
         else:
             for error in errors:
                 flash(error, 'danger')
-
+    
     return render_template('add_makeup.html', body_class='form-bg')
 
 
@@ -163,16 +147,17 @@ def edit(id):
                 WHERE id = %s
             """, (data['nama_produk'], data['deskripsi'], data['tahun_terbit'], data['harga'], data['url_gambar'], id))
             conn.commit()
-            cur.close()
-            conn.close()
             flash('Data produk berhasil diperbarui!', 'success')
             return redirect(url_for('makeup_list'))
         else:
             for error in errors:
                 flash(error, 'danger')
             product = [id] + list(data.values())
-
+    
+    cur.close()
+    conn.close()
     return render_template('edit_makeup.html', product=product, body_class='form-bg')
+
 
 @app.route('/delete/<int:id>', methods=('POST',))
 def delete(id):
@@ -185,32 +170,6 @@ def delete(id):
     conn.close()
     flash('Produk berhasil dihapus.', 'success')
     return redirect(url_for('makeup_list'))
-
-# TAMBAHKAN BLOK KODE DEBUG INI DI app.py
-
-@app.route('/debug-env')
-def debug_env():
-    # Membaca semua variabel lingkungan yang relevan dari Railway
-    db_host = os.getenv("DATABASE_HOST")
-    db_port = os.getenv("POSTGRES_PORT")
-    db_user = os.getenv("POSTGRES_USER")
-    db_name = os.getenv("POSTGRES_DB")
-
-    # Untuk keamanan, kita hanya akan memeriksa apakah password ada, bukan menampilkannya
-    db_pass_exists = "Ada dan terdeteksi" if os.getenv("POSTGRES_PASSWORD") else "TIDAK ADA / KOSONG"
-
-    # Membuat output HTML sederhana untuk ditampilkan di browser
-    return f"""
-        <h1>Debug Environment Variables</h1>
-        <p>Ini adalah nilai variabel yang diterima oleh aplikasi Flask Anda dari Railway:</p>
-        <ul>
-            <li><b>DATABASE_HOST:</b> {db_host}</li>
-            <li><b>POSTGRES_PORT:</b> {db_port}</li>
-            <li><b>POSTGRES_USER:</b> {db_user}</li>
-            <li><b>POSTGRES_DB:</b> {db_name}</li>
-            <li><b>POSTGRES_PASSWORD:</b> {db_pass_exists}</li>
-        </ul>
-    """
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
